@@ -1,0 +1,89 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="flex items-center mb-8">
+    <%= link_to "← 一覧に戻る", jobs_path, class: "text-blue-500 hover:text-blue-700 mr-4" %>
+    <h1 class="text-3xl font-bold text-gray-900">求人詳細</h1>
+  </div>
+
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="px-6 py-8">
+      <div class="border-b border-gray-200 pb-6 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2"><%= @job.title %></h2>
+        <p class="text-xl text-gray-700"><%= @job.company %></p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">基本情報</h3>
+          <div class="space-y-3">
+            <div>
+              <span class="font-medium text-gray-600">勤務地:</span>
+              <span class="text-gray-900"><%= @job.location %></span>
+            </div>
+            
+            <% if @job.salary.present? %>
+              <div>
+                <span class="font-medium text-gray-600">給与:</span>
+                <span class="text-gray-900"><%= @job.salary %></span>
+              </div>
+            <% end %>
+            
+            <% if @job.employment_type.present? %>
+              <div>
+                <span class="font-medium text-gray-600">雇用形態:</span>
+                <span class="text-gray-900"><%= @job.employment_type %></span>
+              </div>
+            <% end %>
+            
+            <% if @job.posted_at.present? %>
+              <div>
+                <span class="font-medium text-gray-600">掲載開始日:</span>
+                <span class="text-gray-900"><%= @job.posted_at.strftime("%Y年%m月%d日") %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">管理情報</h3>
+          <div class="space-y-3">
+            <div>
+              <span class="font-medium text-gray-600">作成日:</span>
+              <span class="text-gray-900"><%= @job.created_at.strftime("%Y年%m月%d日 %H:%M") %></span>
+            </div>
+            <div>
+              <span class="font-medium text-gray-600">更新日:</span>
+              <span class="text-gray-900"><%= @job.updated_at.strftime("%Y年%m月%d日 %H:%M") %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if @job.description.present? %>
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">求人概要</h3>
+          <div class="prose max-w-none">
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap"><%= @job.description %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @job.requirements.present? %>
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">応募要件</h3>
+          <div class="prose max-w-none">
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap"><%= @job.requirements %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-gray-50 px-6 py-4">
+      <div class="flex justify-between items-center">
+        <%= link_to "一覧に戻る", jobs_path, class: "px-4 py-2 border border-gray-300 bg-white rounded-md text-gray-700 hover:bg-gray-50" %>
+        <div class="flex space-x-4">
+          <%= button_to "この求人をSalesforceに同期", test_salesforce_connection_jobs_path, method: :post, class: "px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

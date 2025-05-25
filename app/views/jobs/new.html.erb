@@ -1,0 +1,89 @@
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <div class="flex items-center mb-8">
+    <%= link_to "← 一覧に戻る", jobs_path, class: "text-blue-500 hover:text-blue-700 mr-4" %>
+    <h1 class="text-3xl font-bold text-gray-900">新しい求人を登録</h1>
+  </div>
+
+  <%= form_with(model: @job, local: true, class: "space-y-6") do |form| %>
+    <% if @job.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <h4 class="font-bold">エラーが発生しました:</h4>
+        <ul class="list-disc list-inside">
+          <% @job.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <%= form.label :title, "求人タイトル", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :title, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= form.label :company, "会社名", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :company, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= form.label :location, "勤務地", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :location, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= form.label :salary, "給与", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field :salary, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder: "例: 年収400万円〜600万円" %>
+          </div>
+
+          <div>
+            <%= form.label :employment_type, "雇用形態", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :employment_type, 
+                options_for_select([
+                  ['正社員', '正社員'], 
+                  ['契約社員', '契約社員'], 
+                  ['パート・アルバイト', 'パート・アルバイト'], 
+                  ['業務委託', '業務委託'],
+                  ['インターン', 'インターン']
+                ]), 
+                { prompt: "選択してください" }, 
+                { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" } %>
+          </div>
+        </div>
+
+        <div>
+          <%= form.label :description, "求人概要", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area :description, rows: 5, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= form.label :requirements, "応募要件", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area :requirements, rows: 4, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= form.label :posted_at, "掲載開始日", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.datetime_local_field :posted_at, value: Time.current.strftime("%Y-%m-%dT%H:%M"), class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <!-- Salesforce連携オプション -->
+        <div class="border-t pt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Salesforce連携</h3>
+          <div class="flex items-center">
+            <%= form.check_box :sync_to_salesforce, { checked: true, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" }, "1", "0" %>
+            <%= form.label :sync_to_salesforce, "Salesforceに同期する", class: "ml-2 block text-sm text-gray-900" %>
+          </div>
+          <p class="text-sm text-gray-500 mt-2">チェックすると、求人データ作成後にSalesforceにも自動で登録されます。</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 mt-8">
+        <%= link_to "キャンセル", jobs_path, class: "px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" %>
+        <%= form.submit "求人を登録", class: "px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,55 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">求人一覧</h1>
+    <div class="flex space-x-4">
+      <%= link_to "新しい求人を登録", new_job_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+      <%= button_to "Salesforce接続テスト", test_salesforce_connection_jobs_path, method: :post, class: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <% if flash[:info] %>
+    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+      <%= flash[:info] %>
+    </div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <% @jobs.each do |job| %>
+      <div class="bg-white rounded-lg shadow-md p-6 border">
+        <h3 class="text-xl font-semibold mb-2 text-gray-900"><%= job.title %></h3>
+        <p class="text-gray-600 mb-2"><strong>会社:</strong> <%= job.company %></p>
+        <p class="text-gray-600 mb-2"><strong>場所:</strong> <%= job.location %></p>
+        <% if job.salary.present? %>
+          <p class="text-gray-600 mb-2"><strong>給与:</strong> <%= job.salary %></p>
+        <% end %>
+        <% if job.employment_type.present? %>
+          <p class="text-gray-600 mb-2"><strong>雇用形態:</strong> <%= job.employment_type %></p>
+        <% end %>
+        <p class="text-gray-600 mb-4"><%= truncate(job.description, length: 100) %></p>
+        <div class="flex justify-between items-center">
+          <%= link_to "詳細を見る", job_path(job), class: "text-blue-500 hover:text-blue-700 font-medium" %>
+          <span class="text-sm text-gray-500"><%= job.created_at.strftime("%Y/%m/%d") %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @jobs.empty? %>
+    <div class="text-center py-12">
+      <p class="text-gray-500 text-lg">まだ求人が登録されていません。</p>
+      <%= link_to "最初の求人を登録する", new_job_path, class: "mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-block" %>
+    </div>
+  <% end %>
+</div>
