@@ -1,0 +1,180 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://habco2-dev-ed.develop.my.salesforce.com/services/oauth2/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_id=3MVG94Jqh209Cp4Rt8sETV.IGkNuJlPaPXPkzOm03N3v1XDbUcPLKnpTAt10feGA3DIH9bZ94T2VnD3DGDpu.&client_secret=A955A1241BFFC9C07452E55644BD0E57856CD6300FE5E57D9D07D07F9FD4286D
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/json
+      User-Agent:
+      - Rails-Salesforce-ClientCredentials/1.0
+      Host:
+      - habco2-dev-ed.develop.my.salesforce.com
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 01 Jun 2025 14:58:13 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Expires:
+      - Thu, 01 Jan 1970 00:00:00 GMT
+      Set-Cookie:
+      - BrowserId=11NW_j74EfCESEHdS6LFAQ; domain=.salesforce.com; path=/; expires=Mon,
+        01-Jun-2026 14:58:13 GMT; Max-Age=31536000; secure; SameSite=None
+      - CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13 GMT; Max-Age=31536000;
+        secure
+      - LSKey-c$CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13
+        GMT; Max-Age=31536000; secure
+      X-Content-Type-Options:
+      - nosniff
+      X-Robots-Tag:
+      - none
+      Cache-Control:
+      - no-cache,must-revalidate,max-age=0,no-store,private
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      Server:
+      - sfdcedge
+      X-Sfdc-Request-Id:
+      - 53de7f5627a99811fa838c480be6b987
+      X-Request-Id:
+      - 53de7f5627a99811fa838c480be6b987
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"00DGB000003Yno6!AQcAQMJg3xMcO.RXeRYhdk94Fa7rLO6jVnZpEdZDTvzXklp.Z3j1pAUplPOGB9Eg6pF.Try.gwdxJaX5xrta2N2dXXf8YeCV","signature":"4hg4Bnq5FPxVl8C5L1NmM9aCgS6KItZY3W4X+gKzngw=","scope":"api","instance_url":"https://habco2-dev-ed.develop.my.salesforce.com","id":"https://login.salesforce.com/id/00DGB000003Yno62AC/005GB00000b1yjSYAQ","token_type":"Bearer","issued_at":"1748789893434"}'
+  recorded_at: Sun, 01 Jun 2025 14:58:13 GMT
+- request:
+    method: get
+    uri: https://habco2-dev-ed.develop.my.salesforce.com/services/data/v58.0/query?q=SELECT%20Id,%20Name%20FROM%20Organization%20LIMIT%201
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.13.1
+      Authorization:
+      - OAuth 00DGB000003Yno6!AQcAQMJg3xMcO.RXeRYhdk94Fa7rLO6jVnZpEdZDTvzXklp.Z3j1pAUplPOGB9Eg6pF.Try.gwdxJaX5xrta2N2dXXf8YeCV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 01 Jun 2025 14:58:13 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      Sforce-Limit-Info:
+      - api-usage=597/15000
+      Vary:
+      - Accept-Encoding
+      X-Robots-Tag:
+      - none
+      Cache-Control:
+      - no-cache,must-revalidate,max-age=0,no-store,private
+      Set-Cookie:
+      - BrowserId=14mB0j74EfCiUwnrnaJKbQ; domain=.salesforce.com; path=/; expires=Mon,
+        01-Jun-2026 14:58:13 GMT; Max-Age=31536000; secure; SameSite=None
+      - CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13 GMT; Max-Age=31536000;
+        secure
+      - LSKey-c$CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13
+        GMT; Max-Age=31536000; secure
+      Server:
+      - sfdcedge
+      X-Sfdc-Request-Id:
+      - 72734a368c1d097de995d33ca6f58157
+      X-Request-Id:
+      - 72734a368c1d097de995d33ca6f58157
+      X-Sfdc-Edge-Cache:
+      - MISS
+    body:
+      encoding: ASCII-8BIT
+      string: '{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Organization","url":"/services/data/v58.0/sobjects/Organization/00DGB000003Yno62AC"},"Id":"00DGB000003Yno62AC","Name":"HAB&Co."}]}'
+  recorded_at: Sun, 01 Jun 2025 14:58:13 GMT
+- request:
+    method: get
+    uri: https://habco2-dev-ed.develop.my.salesforce.com/services/data/v58.0/query?q=SELECT%20COUNT()%20FROM%20Job__c
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.13.1
+      Authorization:
+      - OAuth 00DGB000003Yno6!AQcAQMJg3xMcO.RXeRYhdk94Fa7rLO6jVnZpEdZDTvzXklp.Z3j1pAUplPOGB9Eg6pF.Try.gwdxJaX5xrta2N2dXXf8YeCV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 01 Jun 2025 14:58:14 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - BrowserId=162r0T74EfCoOkn3-sSsAQ; domain=.salesforce.com; path=/; expires=Mon,
+        01-Jun-2026 14:58:13 GMT; Max-Age=31536000; secure; SameSite=None
+      - CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13 GMT; Max-Age=31536000;
+        secure
+      - LSKey-c$CookieConsentPolicy=0:1; path=/; expires=Mon, 01-Jun-2026 14:58:13
+        GMT; Max-Age=31536000; secure
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      Cache-Control:
+      - no-cache,must-revalidate,max-age=0,no-store,private
+      Sforce-Limit-Info:
+      - api-usage=597/15000
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Robots-Tag:
+      - none
+      Server:
+      - sfdcedge
+      X-Sfdc-Request-Id:
+      - f144ece1a4301643a3a73d7035ce2174
+      X-Request-Id:
+      - f144ece1a4301643a3a73d7035ce2174
+      X-Sfdc-Edge-Cache:
+      - MISS
+    body:
+      encoding: ASCII-8BIT
+      string: '{"totalSize":6,"done":true,"records":[]}'
+  recorded_at: Sun, 01 Jun 2025 14:58:13 GMT
+recorded_with: VCR 6.3.1
