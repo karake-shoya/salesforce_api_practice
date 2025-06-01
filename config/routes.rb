@@ -4,9 +4,12 @@ Rails.application.routes.draw do
       post :test_salesforce_connection
       get :test_client_credentials
       post :sync_all_to_client_credentials
+      get :deleted  # 削除済み一覧
+      delete :cleanup_old_deleted  # 古いレコードのクリーンアップ
     end
     member do
       post :sync_to_client_credentials
+      patch :restore  # 復元
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -1,0 +1,138 @@
+<div class="min-h-screen py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">削除済み求人一覧</h1>
+          <p class="mt-2 text-gray-300">論理削除された求人データ (復元可能)</p>
+        </div>
+        <div class="flex space-x-3">
+          <% old_deleted_count = Job.soft_deleted_old.count %>
+          <% if old_deleted_count > 0 %>
+            <%= link_to "🗑️ 古いデータをクリーンアップ (#{old_deleted_count}件)", cleanup_old_deleted_jobs_path, 
+                data: { turbo_method: :delete, turbo_confirm: "6ヶ月以上前に削除された#{old_deleted_count}件のレコードを物理削除します。この操作は取り消せません。実行しますか？" },
+                class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+          <% end %>
+          <%= link_to "← 求人一覧に戻る", jobs_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salesforce接続状態 -->
+    <div class="mb-6 p-4 rounded-lg <%= @salesforce_status[:success] ? 'bg-green-900 border border-green-700' : 'bg-red-900 border border-red-700' %>">
+      <div class="flex items-center">
+        <% if @salesforce_status[:success] %>
+          <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="text-green-200 font-medium">✅ Salesforce (Client Credentials) 接続成功</span>
+        <% else %>
+          <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="text-red-200 font-medium">❌ Salesforce接続エラー</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 削除済み求人一覧 -->
+    <div class="bg-gray-700 shadow overflow-hidden sm:rounded-md">
+      <% if @deleted_jobs.any? %>
+        <ul class="divide-y divide-gray-600">
+          <% @deleted_jobs.each do |job| %>
+            <li class="px-4 py-4 sm:px-6 hover:bg-gray-600 border-l-4 border-red-400">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <p class="text-lg font-medium text-white truncate">
+                      <%= job.title %>
+                    </p>
+                    <div class="ml-2 flex-shrink-0 flex">
+                      <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-600 text-red-100">
+                        削除済み
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-2 flex">
+                    <div class="flex items-center text-sm text-gray-300">
+                      <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-1a1 1 0 00-1-1H9a1 1 0 00-1 1v1a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
+                      </svg>
+                      <%= job.company %>
+                    </div>
+                    <div class="ml-6 flex items-center text-sm text-gray-300">
+                      <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                      </svg>
+                      <%= job.location %>
+                    </div>
+                    <div class="ml-6 flex items-center text-sm text-gray-300">
+                      <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clip-rule="evenodd"></path>
+                      </svg>
+                      削除日時: <%= job.deleted_at.strftime("%Y年%m月%d日 %H:%M") %>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <p class="text-sm text-gray-200 line-clamp-2">
+                      <%= truncate(job.description, length: 150) %>
+                    </p>
+                  </div>
+                </div>
+                <div class="ml-5 flex-shrink-0">
+                  <%= link_to "復元", restore_job_path(job), 
+                      data: { turbo_method: :patch, turbo_confirm: "この求人を復元しますか？" },
+                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-white">削除済み求人がありません</h3>
+          <p class="mt-1 text-sm text-gray-300">削除された求人データはここに表示されます。</p>
+          <div class="mt-6">
+            <%= link_to "求人一覧に戻る", jobs_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- 統計情報 -->
+    <% if @deleted_jobs.any? %>
+      <div class="mt-8 bg-gray-700 overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-white mb-4">削除済み統計情報</h3>
+          <dl class="grid grid-cols-1 gap-5 sm:grid-cols-4">
+            <div class="px-4 py-5 bg-red-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-red-200 truncate">削除済み総数</dt>
+              <dd class="mt-1 text-3xl font-semibold text-red-100"><%= @deleted_jobs.count %></dd>
+            </div>
+            <div class="px-4 py-5 bg-orange-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-orange-200 truncate">今日削除</dt>
+              <dd class="mt-1 text-3xl font-semibold text-orange-100">
+                <%= @deleted_jobs.where('deleted_at >= ?', Date.current.beginning_of_day).count %>
+              </dd>
+            </div>
+            <div class="px-4 py-5 bg-yellow-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-yellow-200 truncate">今週削除</dt>
+              <dd class="mt-1 text-3xl font-semibold text-yellow-100">
+                <%= @deleted_jobs.where('deleted_at >= ?', Date.current.beginning_of_week).count %>
+              </dd>
+            </div>
+            <div class="px-4 py-5 bg-purple-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-purple-200 truncate">クリーンアップ対象</dt>
+              <dd class="mt-1 text-3xl font-semibold text-purple-100"><%= Job.soft_deleted_old.count %></dd>
+              <dd class="text-xs text-purple-300">6ヶ月以上前</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 

@@ -75,10 +75,10 @@
             <h3 class="text-lg font-medium text-white mb-4">Salesforce連携 (Client Credentials)</h3>
             <div class="flex items-center">
               <div class="flex items-center h-5">
-                <input type="checkbox" checked disabled class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-500 bg-gray-600 rounded">
+                <%= form.check_box :sync_to_salesforce, { checked: true, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-500 bg-gray-600 rounded" }, "true", "false" %>
               </div>
               <div class="ml-3 text-sm">
-                <label class="text-gray-200">Salesforceに自動同期する</label>
+                <%= form.label :sync_to_salesforce, "Salesforceに自動同期する", class: "text-gray-200" %>
                 <p class="text-gray-300">求人データ作成後、Client Credentials FlowでSalesforceに自動登録されます。</p>
               </div>
             </div>

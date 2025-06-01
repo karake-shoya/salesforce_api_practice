@@ -8,14 +8,14 @@ class SalesforceService
     @client = nil
   end
 
-  def create_job_record(job)
+  def upsert_job_record(job)
     begin
       # クライアント取得（認証含む）
       client = get_authenticated_client
       return { success: false, error: "認証に失敗しました" } unless client
 
-      # Salesforceにカスタムオブジェクトとして求人データを作成
-      response = client.create!("Job__c", {
+      # 外部ID RailsJobID__c を使ってupsert操作（重複防止）
+      response = client.upsert!("Job__c", "RailsJobID__c", {
         Name: job.title,
         Company__c: job.company,
         Description__c: job.description,
@@ -23,11 +23,46 @@ class SalesforceService
         Salary__c: job.salary,
         EmploymentType__c: job.employment_type,
         Requirements__c: job.requirements,
-        PostedDate__c: job.posted_at&.strftime("%Y-%m-%d")
+        PostedDate__c: job.posted_at&.strftime("%Y-%m-%d"),
+        RailsJobID__c: job.id  # Rails側のIDを外部IDとして設定
       })
 
-      Rails.logger.info "✅ Salesforce record created with ID: #{response}"
-      { success: true, salesforce_id: response }
+      Rails.logger.info "✅ Salesforce record upserted with ID: #{response} (Rails Job ID: #{job.id})"
+      { success: true, salesforce_id: response, operation: response.is_a?(String) ? "created" : "updated" }
+    rescue Restforce::ResponseError => e
+      Rails.logger.error "❌ Salesforce API error: #{e.message}"
+      { success: false, error: "API エラー: #{e.message}" }
+    rescue => e
+      Rails.logger.error "❌ Unexpected error: #{e.message}"
+      { success: false, error: "予期しないエラー: #{e.message}" }
+    end
+  end
+
+  # 後方互換性のため、古いメソッド名も残しておく
+  def create_job_record(job)
+    upsert_job_record(job)
+  end
+
+  def delete_job_record(job)
+    begin
+      # クライアント取得（認証含む）
+      client = get_authenticated_client
+      return { success: false, error: "認証に失敗しました" } unless client
+
+      # 外部ID RailsJobID__c でレコードを検索
+      existing_records = client.query("SELECT Id FROM Job__c WHERE RailsJobID__c = '#{job.id}' LIMIT 1")
+
+      if existing_records.empty?
+        Rails.logger.warn "⚠️  Salesforce record not found for Rails Job ID: #{job.id}"
+        return { success: true, message: "Salesforceにレコードが見つかりませんでした（既に削除済みの可能性）" }
+      end
+
+      # Salesforceレコードを削除
+      salesforce_id = existing_records.first.Id
+      client.destroy!("Job__c", salesforce_id)
+
+      Rails.logger.info "✅ Salesforce record deleted: #{salesforce_id} (Rails Job ID: #{job.id})"
+      { success: true, salesforce_id: salesforce_id, message: "Salesforceレコードを削除しました" }
     rescue Restforce::ResponseError => e
       Rails.logger.error "❌ Salesforce API error: #{e.message}"
       { success: false, error: "API エラー: #{e.message}" }

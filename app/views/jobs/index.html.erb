@@ -41,12 +41,21 @@
     </div>
 
     <!-- 新規作成ボタン -->
-    <div class="mb-6">
+    <div class="mb-6 flex space-x-4">
       <%= link_to new_job_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
         新しい求人を作成
+      <% end %>
+      
+      <% if @deleted_jobs_count > 0 %>
+        <%= link_to deleted_jobs_path, class: "inline-flex items-center px-4 py-2 border border-gray-500 text-sm font-medium rounded-md shadow-sm text-gray-200 bg-gray-600 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          削除済み一覧 (<%= @deleted_jobs_count %>)
+        <% end %>
       <% end %>
     </div>
 
@@ -128,11 +137,11 @@
     </div>
 
     <!-- 統計情報 -->
-    <% if @jobs.any? %>
+    <% if @jobs.any? || @deleted_jobs_count > 0 %>
       <div class="mt-8 bg-gray-700 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <h3 class="text-lg leading-6 font-medium text-white mb-4">統計情報</h3>
-          <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <dl class="grid grid-cols-1 gap-5 sm:grid-cols-5">
             <div class="px-4 py-5 bg-gray-600 overflow-hidden sm:rounded-lg sm:px-6">
               <dt class="text-sm font-medium text-gray-200 truncate">総求人数</dt>
               <dd class="mt-1 text-3xl font-semibold text-white"><%= @jobs.count %></dd>
@@ -148,6 +157,15 @@
               <dd class="mt-1 text-3xl font-semibold text-green-100">
                 <%= @jobs.where('created_at >= ?', Date.current.beginning_of_day).count %>
               </dd>
+            </div>
+            <div class="px-4 py-5 bg-red-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-red-200 truncate">削除済み</dt>
+              <dd class="mt-1 text-3xl font-semibold text-red-100"><%= @deleted_jobs_count %></dd>
+            </div>
+            <div class="px-4 py-5 bg-orange-800 overflow-hidden sm:rounded-lg sm:px-6">
+              <dt class="text-sm font-medium text-orange-200 truncate">クリーンアップ対象</dt>
+              <dd class="mt-1 text-3xl font-semibold text-orange-100"><%= @old_deleted_jobs_count %></dd>
+              <dd class="text-xs text-orange-300">6ヶ月以上前</dd>
             </div>
           </dl>
         </div>
