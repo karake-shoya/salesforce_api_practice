@@ -152,7 +152,8 @@ class SalesforceService
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      # SSL証明書検証を有効にする（セキュリティ向上）
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       http.open_timeout = 10
       http.read_timeout = 30
 
@@ -185,7 +186,8 @@ class SalesforceService
         instance_url: token_data["instance_url"],
         api_version: "58.0",
         timeout: 30,
-        ssl: { verify: false },
+        # SSL証明書検証を有効にする（セキュリティ向上）
+        ssl: { verify: true },
         logger: Rails.logger,
         log_level: :info
       )
