@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
-  resources :jobs, only: [ :index, :new, :create, :show ] do
+  resources :jobs do
     collection do
       post :test_salesforce_connection
+      get :test_client_credentials
+      post :sync_all_to_client_credentials
+    end
+    member do
+      post :sync_to_client_credentials
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

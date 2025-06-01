@@ -1,51 +1,162 @@
+require "net/http"
+require "uri"
+require "json"
+
 class SalesforceService
   def initialize
-    @client = Restforce.new(
-      username: ENV["SALESFORCE_USERNAME"],
-      password: ENV["SALESFORCE_PASSWORD"],
-      security_token: ENV["SALESFORCE_SECURITY_TOKEN"],
-      client_id: ENV["SALESFORCE_CLIENT_ID"],
-      client_secret: ENV["SALESFORCE_CLIENT_SECRET"],
-      host: ENV["SALESFORCE_HOST"] || "login.salesforce.com"
-    )
+    @token_data = nil
+    @client = nil
   end
 
   def create_job_record(job)
     begin
-      # Salesforceにカスタムオブジェクトまたは既存オブジェクトとして求人データを作成
-      response = @client.create!("Job__c", {
+      # クライアント取得（認証含む）
+      client = get_authenticated_client
+      return { success: false, error: "認証に失敗しました" } unless client
+
+      # Salesforceにカスタムオブジェクトとして求人データを作成
+      response = client.create!("Job__c", {
         Name: job.title,
         Company__c: job.company,
         Description__c: job.description,
         Location__c: job.location,
         Salary__c: job.salary,
-        Employment_Type__c: job.employment_type,
+        EmploymentType__c: job.employment_type,
         Requirements__c: job.requirements,
-        Posted_Date__c: job.posted_at&.strftime("%Y-%m-%d")
+        PostedDate__c: job.posted_at&.strftime("%Y-%m-%d")
       })
 
-      Rails.logger.info "Salesforce record created with ID: #{response}"
+      Rails.logger.info "✅ Salesforce record created with ID: #{response}"
       { success: true, salesforce_id: response }
-    rescue Restforce::UnauthorizedError => e
-      Rails.logger.error "Salesforce authentication failed: #{e.message}"
-      { success: false, error: "認証エラー: #{e.message}" }
     rescue Restforce::ResponseError => e
-      Rails.logger.error "Salesforce API error: #{e.message}"
+      Rails.logger.error "❌ Salesforce API error: #{e.message}"
       { success: false, error: "API エラー: #{e.message}" }
     rescue => e
-      Rails.logger.error "Unexpected error: #{e.message}"
+      Rails.logger.error "❌ Unexpected error: #{e.message}"
       { success: false, error: "予期しないエラー: #{e.message}" }
     end
   end
 
   def test_connection
     begin
-      @client.authenticate!
-      Rails.logger.info "Salesforce connection successful"
-      { success: true, message: "Salesforce接続成功" }
+      Rails.logger.info "=== Client Credentials Flow 接続テスト開始 ==="
+
+      # トークン取得
+      token_data = get_access_token
+      return { success: false, error: "トークン取得に失敗しました" } unless token_data
+
+      # Restforceクライアント作成
+      client = create_restforce_client(token_data)
+      return { success: false, error: "クライアント作成に失敗しました" } unless client
+
+      # 基本テスト実行
+      org_info = client.query("SELECT Id, Name FROM Organization LIMIT 1")
+      org_name = org_info.first&.Name
+
+      Rails.logger.info "✅ Client Credentials Flow 接続成功"
+      Rails.logger.info "✅ 組織名: #{org_name}"
+
+      # Job__c カスタムオブジェクトの確認
+      begin
+        job_count = client.query("SELECT COUNT() FROM Job__c")
+        count = job_count.first&.dig("expr0") || 0
+        Rails.logger.info "✅ Job__c レコード数: #{count}"
+      rescue => e
+        Rails.logger.warn "⚠️  Job__c カスタムオブジェクト: #{e.message}"
+      end
+
+      { success: true, message: "Client Credentials Flow 接続成功", organization: org_name }
     rescue => e
-      Rails.logger.error "Salesforce connection failed: #{e.message}"
-      { success: false, error: e.message }
+      Rails.logger.error "❌ 接続テストエラー: #{e.message}"
+      { success: false, error: "接続テストエラー: #{e.message}" }
+    end
+  end
+
+  def query_jobs(limit = 10)
+    begin
+      client = get_authenticated_client
+      return { success: false, error: "認証に失敗しました" } unless client
+
+      jobs = client.query("SELECT Id, Name, Company__c, Location__c, Salary__c, CreatedDate FROM Job__c ORDER BY CreatedDate DESC LIMIT #{limit}")
+
+      Rails.logger.info "✅ #{jobs.size}件の求人データを取得"
+      { success: true, jobs: jobs.to_a, count: jobs.size }
+    rescue => e
+      Rails.logger.error "❌ 求人データ取得エラー: #{e.message}"
+      { success: false, error: "求人データ取得エラー: #{e.message}" }
+    end
+  end
+
+  private
+
+  def get_authenticated_client
+    # キャッシュされたクライアントがあれば使用
+    return @client if @client
+
+    # トークン取得
+    token_data = get_access_token
+    return nil unless token_data
+
+    # Restforceクライアント作成
+    @client = create_restforce_client(token_data)
+    @client
+  end
+
+  def get_access_token
+    # キャッシュされたトークンがあれば使用（簡易実装）
+    return @token_data if @token_data
+
+    begin
+      uri = URI("https://#{ENV['SALESFORCE_HOST']}/services/oauth2/token")
+
+      params = {
+        "grant_type" => "client_credentials",
+        "client_id" => ENV["SALESFORCE_CLIENT_ID"],
+        "client_secret" => ENV["SALESFORCE_CLIENT_SECRET"]
+      }
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http.open_timeout = 10
+      http.read_timeout = 30
+
+      request = Net::HTTP::Post.new(uri)
+      request.set_form_data(params)
+      request["Content-Type"] = "application/x-www-form-urlencoded"
+      request["Accept"] = "application/json"
+      request["User-Agent"] = "Rails-Salesforce-ClientCredentials/1.0"
+
+      response = http.request(request)
+
+      if response.code == "200"
+        @token_data = JSON.parse(response.body)
+        Rails.logger.info "✅ Client Credentials トークン取得成功"
+        @token_data
+      else
+        Rails.logger.error "❌ トークン取得失敗: #{response.code} - #{response.body}"
+        nil
+      end
+    rescue => e
+      Rails.logger.error "❌ トークン取得エラー: #{e.message}"
+      nil
+    end
+  end
+
+  def create_restforce_client(token_data)
+    begin
+      Restforce.new(
+        oauth_token: token_data["access_token"],
+        instance_url: token_data["instance_url"],
+        api_version: "58.0",
+        timeout: 30,
+        ssl: { verify: false },
+        logger: Rails.logger,
+        log_level: :info
+      )
+    rescue => e
+      Rails.logger.error "❌ Restforceクライアント作成エラー: #{e.message}"
+      nil
     end
   end
 end
